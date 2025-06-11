@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ReadEasy",
+    "slug": "readeasy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.equesauratus.project"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-audio"
+    ],
+    "jsEngine": "hermes",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
