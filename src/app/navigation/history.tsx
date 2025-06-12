@@ -13,7 +13,7 @@ export default function History() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={translations}
-        renderItem={TranslationItem}
+        renderItem={(info) => <TranslationItem item={info.item} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ListEmptyComponent={

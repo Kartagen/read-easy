@@ -1,5 +1,6 @@
 import * as DocumentPicker from 'expo-document-picker';
 import {
+  extractFB2Content,
   isEpubFile,
   isFb2File,
   isMobiFile,
@@ -87,11 +88,10 @@ export const useLibrary = () => {
               .replace(/<[^>]+>/g, '');
           } else if (isFb2File(file.name)) {
             bookType = 'fb2';
-            content = await readFileWithEncoding(file.uri);
+            content = await extractFB2Content(file.uri);
           } else {
-            Alert.alert(
-              'Error',
-              'Unsupported file type. Please try another file.',
+            Toast.warn(
+              'Unsupported file type. Please try file with format .txt, .fb2, .epub, .mobi.',
             );
 
             return;

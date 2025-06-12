@@ -10,7 +10,13 @@ import {
 import { useBookStore } from '@/entities/books/stores/useBookStore';
 import { useWindowDimensions } from 'react-native';
 
-export const useReaderNavigation = (setIsLoading: (b: boolean) => void) => {
+export const useReaderNavigation = ({
+  setIsLoading,
+  setSelectedIndexes,
+}: {
+  setIsLoading: (b: boolean) => void;
+  setSelectedIndexes: (b: number[]) => void;
+}) => {
   const [currentPage, setCurrentPage] = useState(0);
   const currentBook = useBookStore((state) => state.currentBook);
   const updateCurrentPage = useBookStore((state) => state.setCurrentPage);
@@ -20,17 +26,18 @@ export const useReaderNavigation = (setIsLoading: (b: boolean) => void) => {
   const currentPageContent = currentBook?.pages?.[currentPage] || '';
 
   const changePage = useCallback(
-    (direction: number) => {
+    (direction: number, isGoTo = false) => {
       if (!currentBook?.pages) {
         Toast.error('No pages available for navigation');
 
         return;
       }
 
-      const nextPage = currentPage + direction;
-      if (nextPage >= 0 && nextPage < currentBook.pages.length) {
+      const nextPage = isGoTo ? direction - 1 : currentPage + direction;
+      if (nextPage >= 0 && nextPage < currentBook.pages.length + 1) {
         setCurrentPage(nextPage);
         updateCurrentPage(nextPage);
+        setSelectedIndexes([]);
       }
     },
     [currentBook?.pages, currentPage, updateCurrentPage],

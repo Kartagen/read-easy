@@ -42,7 +42,8 @@ function DrawerLayout() {
   const readerButtons = () => {
     const [isExpanded, setIsExpanded] = React.useState(false);
     const { colors } = useTheme();
-    const { setUsingSpeech, setUsingTranslate } = useReaderStore();
+    const { setUsingSpeech, setUsingTranslate, setUsingGoTo, setUsingSearch } =
+      useReaderStore();
 
     return (
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -90,7 +91,7 @@ function DrawerLayout() {
             <TouchableOpacity
               style={[styles.menuButton, { borderBottomColor: colors.border }]}
               onPress={() => {
-                // TODO: Implement go to page functionality
+                setUsingGoTo(true);
                 setIsExpanded(false);
               }}
             >
@@ -100,7 +101,7 @@ function DrawerLayout() {
             <TouchableOpacity
               style={[styles.menuButton, { borderBottomWidth: 0 }]}
               onPress={() => {
-                // TODO: Implement find in book functionality
+                setUsingSearch(true);
                 setIsExpanded(false);
               }}
             >

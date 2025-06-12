@@ -17,6 +17,7 @@ export const useReader = () => {
   const [useOffline, setUseOffline] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+  const [inputField, setInputField] = useState<string>('');
 
   const isOnline = async () => {
     const state = await Network.getNetworkStateAsync();
@@ -31,7 +32,7 @@ export const useReader = () => {
     changePage,
     gesture,
     animatedStyle,
-  } = useReaderNavigation(setIsLoading);
+  } = useReaderNavigation({ setIsLoading, setSelectedIndexes });
 
   const {
     isSpeaking,
@@ -66,14 +67,86 @@ export const useReader = () => {
   const { startReadingSession, endReadingSession, updatePagesRead } =
     useManageStatisticsStore();
   const loadLastBook = useBookStore((state) => state.loadLastBook);
-  const { isUsingSpeech, isUsingTranslate, setUsingSpeech, setUsingTranslate } =
-    useReaderStore();
+  const {
+    isUsingSpeech,
+    isUsingTranslate,
+    isUsingGoTo,
+    isUsingSearch,
+    setUsingSpeech,
+    setUsingTranslate,
+    setUsingSearch,
+    setUsingGoTo,
+  } = useReaderStore();
   const { loadBookContent, processContent } = useManageBookStore();
 
   const { fontSize, fontFamily, lineSpacing, marginWidth } = useSettingsStore();
 
   const handleChangeNetwork = () => {
     setUseOffline(!useOffline);
+  };
+
+  const handleClose = () => {
+    setUsingSpeech(false);
+    setUsingTranslate(false);
+    setUsingSearch(false);
+    setUsingGoTo(false);
+    if (isSpeaking) {
+      Speech.stop();
+      setIsSpeaking(false);
+    }
+    setInputField('');
+    setSelectedText('');
+    setSelectedIndexes([]);
+    setCurrentWordIndex(0);
+  };
+
+  const handleWordPress = (index: number) => {
+    setSelectedIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
+    );
+
+    const newSelectedText = selectedIndexes.includes(index)
+      ? words
+          .filter((_, i) =>
+            selectedIndexes.filter((idx) => idx !== index).includes(i),
+          )
+          .join(' ')
+      : words
+          .filter((_, i) => [...selectedIndexes, index].includes(i))
+          .join(' ');
+
+    setSelectedText(newSelectedText);
+  };
+
+  const handleInput = (text: string) => {
+    if (isUsingGoTo && currentBook) {
+      const onlyNumbers = text.replace(/[^0-9]/g, '');
+      const num = parseInt(onlyNumbers, 10);
+      if (onlyNumbers === '' || isNaN(num)) {
+        setInputField('');
+      } else if (num < 1) {
+        setInputField('1');
+      } else if (num > currentBook.totalPages + 1) {
+        setInputField(currentBook.totalPages.toString());
+      } else {
+        setInputField(onlyNumbers);
+      }
+    } else {
+      setInputField(text);
+    }
+  };
+
+  const handleFind = () => {
+    if (currentBook && currentBook.pages) {
+      const pages = currentBook.pages;
+      for (let i = currentPage + 1; i < pages.length; i++) {
+        if (pages[i].includes(inputField)) {
+          changePage(i + 1, true);
+
+          return;
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -130,35 +203,14 @@ export const useReader = () => {
     }
   }, [currentPageContent]);
 
-  const handleClose = () => {
-    setUsingSpeech(false);
-    setUsingTranslate(false);
-    if (isSpeaking) {
-      Speech.stop();
-      setIsSpeaking(false);
+  useEffect(() => {
+    if (words && inputField) {
+      const wordIndex = words.findIndex((word) => word.includes(inputField));
+      if (wordIndex) {
+        setSelectedIndexes((selected) => [...selected, wordIndex]);
+      }
     }
-    setSelectedText('');
-    setSelectedIndexes([]);
-    setCurrentWordIndex(0);
-  };
-
-  const handleWordPress = (index: number) => {
-    setSelectedIndexes((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
-    );
-
-    const newSelectedText = selectedIndexes.includes(index)
-      ? words
-          .filter((_, i) =>
-            selectedIndexes.filter((idx) => idx !== index).includes(i),
-          )
-          .join(' ')
-      : words
-          .filter((_, i) => [...selectedIndexes, index].includes(i))
-          .join(' ');
-
-    setSelectedText(newSelectedText);
-  };
+  }, [words]);
 
   useEffect(() => {
     if (currentBook) {
@@ -185,6 +237,7 @@ export const useReader = () => {
 
   return {
     words,
+    changePage,
     currentPageContent,
     handleWordPress,
     marginWidth,
@@ -195,6 +248,9 @@ export const useReader = () => {
     isLoading,
     isUsingSpeech,
     isUsingTranslate,
+    isUsingGoTo,
+    isUsingSearch,
+    inputField,
     gesture,
     animatedStyle,
     currentPage,
@@ -207,6 +263,8 @@ export const useReader = () => {
     handleChangeNetwork,
     handleResetPosition,
     handleClose,
+    handleFind,
+    handleInput,
     handleSpeech,
     handleTranslation,
   };

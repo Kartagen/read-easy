@@ -1,5 +1,11 @@
 import React from 'react';
-import { Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  Modal,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 import { ThemedText } from '@/shared/components/ThemedText';
@@ -12,6 +18,7 @@ const Reader = () => {
   const { colors } = useTheme();
   const {
     words,
+    changePage,
     currentPageContent,
     handleWordPress,
     marginWidth,
@@ -22,11 +29,15 @@ const Reader = () => {
     isLoading,
     isUsingSpeech,
     isUsingTranslate,
+    isUsingGoTo,
+    isUsingSearch,
+    inputField,
     gesture,
     animatedStyle,
     currentPage,
     showTranslationModal,
     setShowTranslationModal,
+    handleInput,
     selectedText,
     translatedText,
     handleSaveTranslation,
@@ -34,6 +45,7 @@ const Reader = () => {
     handleChangeNetwork,
     handleResetPosition,
     handleClose,
+    handleFind,
     handleSpeech,
     handleTranslation,
   } = useReader();
@@ -58,7 +70,8 @@ const Reader = () => {
     );
   }
 
-  const showBottomBar = isUsingSpeech || isUsingTranslate;
+  const showBottomBar =
+    isUsingSpeech || isUsingTranslate || isUsingGoTo || isUsingSearch;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -158,10 +171,16 @@ const Reader = () => {
           <View style={styles.bottomBarHeader}>
             <View style={styles.bottomBarTitleContainer}>
               <ThemedText style={styles.bottomBarTitle}>
-                {isUsingSpeech ? 'Text to Speech' : 'Translation'}
+                {isUsingSpeech
+                  ? 'Text to Speech'
+                  : isUsingTranslate
+                    ? 'Translation'
+                    : isUsingGoTo
+                      ? 'Go To'
+                      : 'Search text'}
               </ThemedText>
               <ThemedText style={styles.bottomBarPage}>
-                Page {currentPage + 1}/{currentBook.totalPages || 0}
+                Page {currentPage + 1}/{currentBook.totalPages + 1 || 0}
               </ThemedText>
               <ThemedText style={styles.bottomBarPage}>
                 Is offline {String(useOffline)}
@@ -194,6 +213,23 @@ const Reader = () => {
               </TouchableOpacity>
             </View>
           </View>
+
+          {(isUsingGoTo || isUsingSearch) && (
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  width: isUsingGoTo ? 110 : '100%',
+                  color: colors.text,
+                  backgroundColor: colors.background,
+                },
+              ]}
+              placeholder={isUsingGoTo ? 'Select Page' : 'Write Something...'}
+              value={inputField}
+              keyboardType={isUsingGoTo ? 'numeric' : 'default'}
+              onChangeText={handleInput}
+            />
+          )}
           <View style={styles.bottomBarActions}>
             {isUsingSpeech ? (
               <TouchableOpacity
@@ -209,7 +245,7 @@ const Reader = () => {
                   color={colors.buttonText}
                 />
               </TouchableOpacity>
-            ) : (
+            ) : isUsingTranslate ? (
               <>
                 <TouchableOpacity
                   style={[
@@ -223,6 +259,43 @@ const Reader = () => {
                 >
                   <Ionicons
                     name="language-outline"
+                    size={24}
+                    color={colors.buttonText}
+                  />
+                </TouchableOpacity>
+              </>
+            ) : isUsingGoTo ? (
+              <>
+                <TouchableOpacity
+                  style={[
+                    styles.bottomBarButton,
+                    { backgroundColor: colors.button },
+                  ]}
+                  onPress={() => {
+                    changePage(+inputField, true);
+                    handleClose();
+                  }}
+                >
+                  <Ionicons
+                    name="book-outline"
+                    size={24}
+                    color={colors.buttonText}
+                  />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TouchableOpacity
+                  style={[
+                    styles.bottomBarButton,
+                    { backgroundColor: colors.button },
+                  ]}
+                  onPress={() => {
+                    handleFind();
+                  }}
+                >
+                  <Ionicons
+                    name="search-outline"
                     size={24}
                     color={colors.buttonText}
                   />
@@ -268,6 +341,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     opacity: 0.5,
+  },
+  input: {
+    alignSelf: 'center',
+    textAlign: 'center',
+    height: 50,
+    fontSize: 16,
+    borderRadius: 8,
+    padding: 12,
+    marginHorizontal: 4,
+    marginBottom: 12,
   },
   message: {
     textAlign: 'center',

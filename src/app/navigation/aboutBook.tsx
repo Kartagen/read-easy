@@ -62,7 +62,7 @@ export default function AboutBook() {
         <View style={styles.infoRow}>
           <ThemedText style={styles.infoLabel}>File Name:</ThemedText>
           <ThemedText style={styles.infoValue}>
-            {book.name.substring(0, 28)}
+            {book.name.substring(0, 20)}
           </ThemedText>
         </View>
         <View style={styles.infoRow}>

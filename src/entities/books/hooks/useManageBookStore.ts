@@ -1,5 +1,6 @@
 import { Toast } from 'toastify-react-native';
 import {
+  extractFB2Content,
   isEpubFile,
   isFb2File,
   isMobiFile,
@@ -42,7 +43,7 @@ export const useManageBookStore = () => {
           .replace(/<p\b[^>]*>/gi, '\n')
           .replace(/<[^>]+>/g, '');
       } else if (isFb2File(currentBook.name)) {
-        content = await readFileWithEncoding(currentBook.filePath);
+        content = await extractFB2Content(currentBook.filePath);
       } else {
         Toast.warn(
           'Unsupported file type. Please try file with format .txt, .fb2, .epub, .mobi.',

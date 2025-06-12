@@ -40,6 +40,22 @@ export interface UseTranslationProps {
   currentBook: Book | null;
 }
 
+export interface FB2Section {
+  p?: string | string[];
+  title?: { p: string | string[] };
+}
+
+export interface FB2Body {
+  '@_name'?: string;
+  section?: FB2Section | FB2Section[];
+}
+
+export interface FB2Root {
+  FictionBook: {
+    body: FB2Body | FB2Body[];
+  };
+}
+
 export interface TranslationData {
   translations: Translation[];
 }
@@ -86,6 +102,8 @@ export interface Settings {
 export interface Reader {
   isUsingSpeech: boolean;
   isUsingTranslate: boolean;
+  isUsingGoTo: boolean;
+  isUsingSearch: boolean;
 }
 
 export interface BookData {
@@ -148,4 +166,6 @@ export interface SettingsState extends Settings {
 export interface ReaderState extends Reader {
   setUsingSpeech: (value: boolean) => void;
   setUsingTranslate: (value: boolean) => void;
+  setUsingGoTo: (value: boolean) => void;
+  setUsingSearch: (value: boolean) => void;
 }
