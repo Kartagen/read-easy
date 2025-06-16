@@ -1,10 +1,20 @@
 import { create } from 'zustand';
-import { StatisticsStore } from '@/shared/types/types';
+import { BookStatistics, StatisticsStore } from '@/shared/types/types';
+import { storageUtils } from '@/shared/utils/storage';
+import { STATISTIC_KEY } from '@/shared/constants/constants';
 
 export const useStatisticsStore = create<StatisticsStore>((set, get) => ({
   statistics: {},
 
-  setBookStatistics: (bookId, newStats) => {
+  setBookStatistics: async (bookId, newStats) => {
+    const savedStatistics = await storageUtils.get(
+      STATISTIC_KEY,
+      [] as unknown as Record<string, BookStatistics>,
+    );
+    await storageUtils.set(STATISTIC_KEY, {
+      ...savedStatistics,
+      [bookId]: newStats,
+    });
     set((state) => ({
       statistics: {
         ...state.statistics,
@@ -29,3 +39,8 @@ export const useStatisticsStore = create<StatisticsStore>((set, get) => ({
     });
   },
 }));
+storageUtils
+  .get(STATISTIC_KEY, [] as unknown as Record<string, BookStatistics>)
+  .then((savedStatistics) => {
+    useStatisticsStore.setState({ statistics: savedStatistics });
+  });

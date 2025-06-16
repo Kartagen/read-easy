@@ -36,7 +36,7 @@ export const useTranslation = ({
     if (selectedText) {
       const apiKey = process.env.EXPO_PUBLIC_DEEPL_API_KEY;
       const params = new URLSearchParams();
-      params.append('text', selectedText.replace('\\newLine', ' '));
+      params.append('text', selectedText.replace(/\\newLine/g, ' '));
       params.append('target_lang', translationLanguage.substring(0, 2));
       const response = await fetch('https://api-free.deepl.com/v2/translate', {
         method: 'POST',
@@ -58,7 +58,7 @@ export const useTranslation = ({
   const handleOfflineTranslation = () => {
     if (selectedText) {
       NativeModules.Translator.translateWord(
-        selectedText.replace('\\newLine', ' '),
+        selectedText.replace(/\\newLine/g, ' '),
         translationLanguage.substring(0, 2),
       )
         .then((translated: string) => {
@@ -75,7 +75,7 @@ export const useTranslation = ({
     if (selectedText && translatedText && currentBook) {
       addTranslation({
         bookName: currentBook.name,
-        originalText: selectedText.replace('\\newLine', ' '),
+        originalText: selectedText.replace(/\\newLine/g, ' '),
         translatedText,
       });
       setShowTranslationModal(false);

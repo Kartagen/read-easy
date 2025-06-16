@@ -91,6 +91,7 @@ export const DEFAULT_BOOK: Book = {
 };
 
 export const STORAGE_KEY = 'app-settings';
+export const STATISTIC_KEY = 'app-statistic';
 export const BOOKS_STORAGE_KEY = 'books_state';
 export const LAST_BOOK_KEY = 'last_book';
 

@@ -1,5 +1,5 @@
 import { useSettingsStore } from '@/entities/settings/stores/useSettingsStore';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 import * as Speech from 'expo-speech';
 import { Toast } from 'toastify-react-native';
@@ -22,8 +22,7 @@ export const useSpeech = ({
   const wordTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(
     undefined,
   );
-  const [fileUri, setFileUri] = React.useState<string | null>(null);
-  const player = useAudioPlayer(fileUri, 10);
+  const player = useAudioPlayer(null);
 
   const handleSpeech = async () => {
     if (player.currentStatus.playing || isSpeaking) {
@@ -86,7 +85,7 @@ export const useSpeech = ({
     const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify({
-        input: { text: textToSpeak.replace('\\newLine', ' ') },
+        input: { text: textToSpeak.replace(/\\newLine/g, ' ') },
         voice: {
           ...voiceOptions,
         },
@@ -105,10 +104,9 @@ export const useSpeech = ({
       encoding: FileSystem.EncodingType.Base64,
     });
 
-    setFileUri(fileUri);
     player.replace(fileUri);
     while (!player.isLoaded) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
     setIsSpeaking(true);
     player.play();
@@ -121,7 +119,7 @@ export const useSpeech = ({
       pausedPosition !== 0
         ? baseText.split(/\s+/).slice(pausedPosition).join(' ')
         : baseText
-    ).replace('\\newLine', ' ');
+    ).replace(/\\newLine/g, ' ');
     setIsSpeaking(true);
 
     const speechHandlers = {
