@@ -8,7 +8,6 @@ import { UseTranslationProps } from '@/shared/types/types';
 export const useTranslation = ({
   isOnline,
   selectedText,
-  setSelectedText,
   currentBook,
 }: UseTranslationProps) => {
   const [showTranslationModal, setShowTranslationModal] = useState(false);
@@ -80,7 +79,6 @@ export const useTranslation = ({
         translatedText,
       });
       setShowTranslationModal(false);
-      setSelectedText('');
       setTranslatedText('');
     }
   };

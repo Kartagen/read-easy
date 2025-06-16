@@ -46,6 +46,14 @@ export default defineConfig([
       '@typescript-eslint/no-var-requires': 'off',
       '@typescript-eslint/func-call-spacing': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          'argsIgnorePattern': '^_',
+          'varsIgnorePattern': '^_',
+        },
+      ],
+
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-shadow': 'off',
 

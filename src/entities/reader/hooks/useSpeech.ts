@@ -51,10 +51,8 @@ export const useSpeech = ({
     setIsSpeaking(true);
     const textToSpeak =
       selectedText ||
-      currentPageContent
-        .replace('\\newLine', ' ')
-        .replace(/[\r\n]+/g, ' ')
-        .replace(/\s+/g, ' ');
+      currentPageContent.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ');
+
     const apiKey = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
     const language =
       voiceLanguage.toString() === 'auto'
@@ -88,7 +86,7 @@ export const useSpeech = ({
     const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify({
-        input: { text: textToSpeak },
+        input: { text: textToSpeak.replace('\\newLine', ' ') },
         voice: {
           ...voiceOptions,
         },
@@ -109,17 +107,21 @@ export const useSpeech = ({
 
     setFileUri(fileUri);
     player.replace(fileUri);
+    while (!player.isLoaded) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    setIsSpeaking(true);
     player.play();
   }
 
   const handleSpeechOffline = async () => {
-    const baseText =
-      selectedText || currentPageContent.replace('\\newLine', ' ');
+    const baseText = selectedText || currentPageContent;
 
-    const textToSpeak =
+    const textToSpeak = (
       pausedPosition !== 0
         ? baseText.split(/\s+/).slice(pausedPosition).join(' ')
-        : baseText;
+        : baseText
+    ).replace('\\newLine', ' ');
     setIsSpeaking(true);
 
     const speechHandlers = {

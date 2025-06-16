@@ -60,7 +60,6 @@ export const useReader = () => {
   } = useTranslation({
     isOnline,
     selectedText,
-    setSelectedText,
     currentBook,
   });
 

@@ -20,4 +20,12 @@ export const useStatisticsStore = create<StatisticsStore>((set, get) => ({
   getAllStatistics: () => {
     return Object.values(get().statistics);
   },
+
+  deleteBookStatistics: (bookId) => {
+    set((state) => {
+      const { [bookId]: _, ...rest } = state.statistics;
+
+      return { statistics: rest };
+    });
+  },
 }));

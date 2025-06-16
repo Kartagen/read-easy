@@ -36,7 +36,6 @@ export interface UseSpeechProps {
 export interface UseTranslationProps {
   isOnline: () => Promise<boolean>;
   selectedText: string;
-  setSelectedText: (s: string) => void;
   currentBook: Book | null;
 }
 
@@ -146,6 +145,7 @@ export interface TranslationStore extends TranslationData {
 export interface StatisticsStore extends BookStatisticsData {
   setBookStatistics: (bookId: string, stats: BookStatistics) => void;
   getBookStatistics: (bookId: string) => BookStatistics | undefined;
+  deleteBookStatistics: (bookId: string) => void;
   getAllStatistics: () => BookStatistics[];
 }
 
